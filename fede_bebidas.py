@@ -1,67 +1,56 @@
 from datetime import date
 
 
-# Crear el pedido con Cliente - Dia - Productos -  Total
+# Crear boleta con los datos Client, day, products[], total
 def create_order():
-
     order = True
-    # Lista de productos
     products = []
-
-    # Datos clientes y dia
     client = input("Cliente: ")
     day = date.today()
-    # Loop para agregar productos
+
     while order:
         print("")
 
-        # Imprimir productos de la lista ya agregar si existen
         if len(products) > 0:
-            print("Cant    Producto    Unit    Subtotal")
+            print("Cant    Producto         Unit     Subtotal")
             for i, product in enumerate(products):
                 print(
-                    f"{i +1}- {product['amount']}     {product['product']}    {product['unit_price']}     {product['subtotal']}"
+                    f"{i+1} {product['amount']:<8}{product['product']:<16}{product['unit_price']:<9}{product['subtotal']}"
                 )
 
         print("")
 
         user_action = input(
-            "1- Agregar Producto\n2-Borrar Producto\n3-Finalizar Pedido\n"
+            "1- Agregar Producto\n2- Borrar Producto\n3- Finalizar Pedido\n"
         )
 
         print("")
 
         match user_action:
             case "1":
-                # Agregar producto
                 products.append(create_product())
             case "2":
-                # Eliminar producto
                 if len(products) > 0:
-                    products.pop(eliminate_order())
+                    products.pop(eliminate_order(products))
                 else:
-                    print("No tiene productos para eliminar")
-
+                    print("No hay productos para eliminar")
             case "3":
-                # Retornar el pedido completo cuando decide finalizar
                 return {
                     "client": client,
-                    "day": day.strftime("%d-%m-%Y"),  # Formateo de fecha
+                    "day": day.strftime("%d-%m-%Y"),
                     "products": products,
-                    "total": sum([product["subtotal"] for product in products]),
+                    "total": sum(product["subtotal"] for product in products),
                 }
-
             case _:
-                print("Valor no valido.")
+                print("Opción no válida.")
 
 
-# Crear Producto
+# Crear y agregar a products[] con datos de Amount, product, unit_price, subtotal
 def create_product():
     amount = input("Cantidad: ")
     product = input("Producto: ")
-    unit_price = input("Precio: ")
-    subtotal = float(unit_price) * float(amount)
-
+    unit_price = float(input("Precio: "))
+    subtotal = unit_price * float(amount)
     return {
         "amount": amount,
         "product": product,
@@ -70,53 +59,67 @@ def create_product():
     }
 
 
-# Eliminar Producto
-def eliminate_order():
-    user_select = int(input("Pedido para eliminar: "))
-    return user_select - 1
+# Eliminar el producto si es que existen
+def eliminate_order(products):
+    user_select = int(input("Producto para eliminar (1 - {}): ".format(len(products))))
+    if 1 <= user_select <= len(products):
+        return user_select - 1
+    else:
+        print("Selección no válida.")
+        return -1
 
 
-# Imprimir boleta
+# Visualizar la boleta ( proximamente impresion de pdf )
 def print_order(order):
-    print(f"{order['client']}   {order['day']}")
-    for product in order['products']:
-        print(f"{product['amount']}   {product['product']}  {product['unit_price']}   {product['subtotal']}")
-    print(f"Total: {order['total']}")
+    print(f"Cliente: {order['client']}   Fecha: {order['day']}")
+    print("Cant    Producto         Unit     Subtotal")
+    for product in order["products"]:
+        print(
+            f"{product['amount']:<8}{product['product']:<16}{product['unit_price']:<9}{product['subtotal']}"
+        )
+    print(f"Total: {order['total']:.2f}")
 
 
 def main():
-    # Start Program
+    # List que contiene las boletas creadas
     orders = []
+
+    # Boolean para funcionamiento del programa
     start_program = True
 
+    # Comienzo programa
     while start_program:
-        # Opciones: Crear Pedido, Borrar Pedido, Imprimir Boleta, Cerrar programa
+
+        # Opciones para el usuario
         user_input = input(
-            "1-Crear Pedido\n2-Borrar Pedido\n3-Imprimir Boleta\n4-Cerrar Programa\n"
+            "1- Crear Pedido\n2- Borrar Pedido\n3- Imprimir Boleta\n4- Cerrar Programa\n"
         )
         print("")
 
         match user_input:
             case "1":
-                # Funcion crear pedido
                 orders.append(create_order())
             case "2":
-                # Funcion Borrar pedido
-                orders.pop(eliminate_order())
-            case "3":
-                # Funcion para imprimir la boleta
                 if len(orders) > 0:
-                    user_print = int(input("Que boleta queres imprimir?"))
-                    print_order(orders[user_print - 1])
+                    orders.pop(eliminate_order(orders))
+                else:
+                    print("No hay pedidos para eliminar")
+            case "3":
+                if len(orders) > 0:
+                    user_print = int(
+                        input("Selecciona el número de boleta a imprimir: ")
+                    )
+                    if 1 <= user_print <= len(orders):
+                        print_order(orders[user_print - 1])
+                    else:
+                        print("Selección no válida.")
                 else:
                     print("No hay boletas para imprimir")
             case "4":
-                # Cerrar Programa
                 start_program = False
-
             case _:
-                # Lanzar error
-                ...
+                print("Opción no válida.")
 
 
-main()
+if __name__ == "__main__":
+    main()
