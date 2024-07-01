@@ -77,7 +77,11 @@ def eliminate_order():
 
 
 # Imprimir boleta
-def print_order(): ...
+def print_order(order):
+    print(f"{order['client']}   {order['day']}")
+    for product in order['products']:
+        print(f"{product['amount']}   {product['product']}  {product['unit_price']}   {product['subtotal']}")
+    print(f"Total: {order['total']}")
 
 
 def main():
@@ -86,11 +90,6 @@ def main():
     start_program = True
 
     while start_program:
-        # Si ya hay un pedido hecho se imprime de bajo de las opciones
-        if len(orders) > 0:
-            for order in orders:
-                print(order)
-        print("")
         # Opciones: Crear Pedido, Borrar Pedido, Imprimir Boleta, Cerrar programa
         user_input = input(
             "1-Crear Pedido\n2-Borrar Pedido\n3-Imprimir Boleta\n4-Cerrar Programa\n"
@@ -106,7 +105,11 @@ def main():
                 orders.pop(eliminate_order())
             case "3":
                 # Funcion para imprimir la boleta
-                ...
+                if len(orders) > 0:
+                    user_print = int(input("Que boleta queres imprimir?"))
+                    print_order(orders[user_print - 1])
+                else:
+                    print("No hay boletas para imprimir")
             case "4":
                 # Cerrar Programa
                 start_program = False
