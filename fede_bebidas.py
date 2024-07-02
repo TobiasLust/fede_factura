@@ -1,14 +1,16 @@
 from datetime import date
 
+## PARA MAÑANA EDITAR LAS FUNCIONES DE CREAR PRODUCTO Y CREAR BOLETA. EDITAR TMB COMO SE ACTUALIZA EL TOTAL EN EDITAR BOLETA
+
 
 # Crear boleta con los datos Client, day, products[], total
 def create_order():
-    order = True
+    # order = True Por ahora no me sirve
     products = []
     client = input("Cliente: ")
     day = date.today()
 
-    while order:
+    while True:  # Puede ser una variable luego
         print("")
 
         if len(products) > 0:
@@ -69,6 +71,29 @@ def eliminate_order(products):
         return -1
 
 
+# Editar boleta
+
+
+# Editar producto
+def edit_order(order):
+    print_order(order)
+    new_order = order
+    user_choice = input("Que deseas cambiar?")
+    
+    match user_choice:
+        case "cliente":
+            new_order["client"] = input("Cambiar cliente... ")
+            print("Cliente actualizado")
+            
+        case "producto":
+            i_product = int(input(f"Que producto (1-{len(new_order['products'])})"))
+            new_order["products"][i_product - 1] = create_product()
+        case _ :
+            print("No valido")
+    
+    return new_order
+
+
 # Visualizar la boleta ( proximamente impresion de pdf )
 def print_order(order):
     print(f"Cliente: {order['client']}   Fecha: {order['day']}")
@@ -92,7 +117,7 @@ def main():
 
         # Opciones para el usuario
         user_input = input(
-            "1- Crear Pedido\n2- Borrar Pedido\n3- Imprimir Boleta\n4- Cerrar Programa\n"
+            "1- Crear Pedido\n2- Borrar Pedido\n3- Editar boleta\n4- Imprimir Boleta\n4- Cerrar Programa\n"
         )
         print("")
 
@@ -106,8 +131,17 @@ def main():
                     print("No hay pedidos para eliminar")
             case "3":
                 if len(orders) > 0:
+                    user_select = int(input(f"BOleta para editar (1 - {len(orders)}): "))
+                    orders[user_select - 1] = edit_order(orders[user_select - 1])
+                    
+                else:
+                    print("No hay pedidos para editar")
+            case "4":
+                if len(orders) > 0:
                     user_print = int(
-                        input("Selecciona el número de boleta a imprimir: ")
+                        input(
+                            f"Selecciona el número de boleta a imprimir: (1-{len(orders)}) "
+                        )
                     )
                     if 1 <= user_print <= len(orders):
                         print_order(orders[user_print - 1])
