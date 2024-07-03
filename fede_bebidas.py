@@ -1,17 +1,15 @@
 from datetime import date
 
-## PARA MAÑANA EDITAR LAS FUNCIONES DE CREAR PRODUCTO Y CREAR BOLETA. Crear funcion para editar boleta
+## PARA HACER: EDITAR LAS FUNCIONE Y CREAR BOLETA.
 
 
 # Crear boleta con los datos Client, day, products[], total
 def create_order():
-    # order = True Por ahora no me sirve
     products = []
     client = input("Cliente: ")
     day = date.today()
 
     while True:  # Puede ser una variable luego
-        print("")
 
         if len(products) > 0:
             print("Cant    Producto         Unit     Subtotal")
@@ -20,13 +18,9 @@ def create_order():
                     f"{i+1} {product['amount']:<8}{product['product']:<16}{product['unit_price']:<9}{product['subtotal']}"
                 )
 
-        print("")
-
         user_action = input(
-            "1- Agregar Producto\n2- Borrar Producto\n4- Editar producto\n5- Terminar pedido"
+            "1- Agregar Producto\n2- Borrar Producto\n3- Editar producto\n4- Terminar pedido"
         )
-
-        print("")
 
         match user_action:
             case "1":
@@ -81,24 +75,49 @@ def eliminate_order(products):
         return -1
 
 
-# Editar boleta
-
-
 # Editar producto
 def edit_product(product):
     new_product = product.copy()
-    user_choice = input(f"Que deseas cambiar {new_product.keys()} ")
+    user_choice = input(f"Que deseas cambiar {','.join(list(new_product.keys()))} ")
 
     if user_choice in new_product.keys():
-        if user_choice == "unit_price" :
+        if user_choice == "unit_price":
             new_product[user_choice] = float(input(f"{user_choice.title()}: "))
-            new_product["subtotal"] = int(new_product["amount"]) * new_product["unit_price"]
+            # Actualizar el subtotal
+            new_product["subtotal"] = (
+                int(new_product["amount"]) * new_product["unit_price"]
+            )
         else:
             new_product[user_choice] = input(f"{user_choice.title()}: ")
     else:
         print("No existe.")
 
     return new_product
+
+
+# Editar boleta
+def edit_order(order):
+    new_order = order.copy()
+    user_choice = input(f"Que deseas cambiar {','.join(list(new_order.keys()))} ")
+
+    if user_choice in new_order.keys():
+        # Editar los productos
+        if user_choice == "products":
+            user_select = int(
+                input(f"Producto para editar (1 - {len(new_order['products'])}): ")
+            )
+            new_order["products"][user_select - 1] = edit_product(
+                new_order["products"][user_select - 1]
+            )
+        else:
+            new_order[user_choice] = input("Cambiar...")
+    else:
+        print("dato no valido.")
+
+    # Actualizar total de la boleta
+    new_order["total"] = sum(product["subtotal"] for product in new_order["products"])
+
+    return new_order
 
 
 # Visualizar la boleta ( proximamente impresion de pdf )
@@ -124,9 +143,8 @@ def main():
 
         # Opciones para el usuario
         user_input = input(
-            "1- Crear Pedido\n2- Borrar Pedido\n3- Editar boleta\n4- Imprimir Boleta\n4- Cerrar Programa\n"
+            "1- Crear Pedido\n2- Borrar Pedido\n3- Editar boleta\n4- Imprimir Boleta\n5- Cerrar Programa\n"
         )
-        print("")
 
         match user_input:
             case "1":
@@ -136,6 +154,15 @@ def main():
                     orders.pop(eliminate_order(orders))
                 else:
                     print("No hay pedidos para eliminar")
+            case "3":
+                if len(orders) > 0:
+                    user_select = int(
+                        input(f"BOleta para editar (1 - {len(orders)}): ")
+                    )
+                    orders[user_select - 1] = edit_order(orders[user_select - 1])
+
+                else:
+                    print("No hay pedidos para editar")
             case "4":
                 if len(orders) > 0:
                     user_print = int(
